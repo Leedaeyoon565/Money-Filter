@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>머니필터 앱 시연 (제휴업체 강화)</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .mobile-container {
+            max-width: 420px;
+            min-height: 100vh;
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .app-header {
+            background-color: #3b82f6;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .app-content {
+            flex-grow: 1;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-top: 1px solid #e5e7eb;
+            background-color: white;
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 0.75rem;
+            flex: 1;
+        }
+        .nav-item.active {
+            color: #3b82f6;
+        }
+        .nav-item i {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .card {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        /* --- Custom Styles --- */
+        .toggle-switch { display: flex; align-items: center; font-size: 0.875rem; }
+        .toggle-switch input[type="checkbox"] { height: 0; width: 0; visibility: hidden; }
+        .toggle-switch label {
+            cursor: pointer; text-indent: -9999px; width: 40px; height: 20px;
+            background: grey; display: block; border-radius: 100px; position: relative;
+        }
+        .toggle-switch label:after {
+            content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+            background: #fff; border-radius: 90px; transition: 0.3s;
+        }
+        .toggle-switch input:checked + label { background: #3b82f6; }
+        .toggle-switch input:checked + label:after { left: calc(100% - 2px); transform: translateX(-100%); }
+
+        .category-confirmation .btn {
+            padding: 0.25rem 0.75rem; font-size: 0.75rem; border-radius: 0.25rem; margin-left: 0.5rem;
+        }
+        .pie-chart-placeholder {
+            width: 100px; height: 100px; border-radius: 50%;
+            background: conic-gradient(#fbbf24 0% 35%, #34d399 35% 60%, #8b5cf6 60% 80%, #ec4899 80% 100%);
+            margin: 0 auto; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 0.8rem; font-weight: bold;
+        }
+        .info-box {
+            background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 0.75rem;
+            margin-top: 0.5rem; border-radius: 0.25rem; font-size: 0.875rem;
+        }
+
+        #map-canvas {
+            width: 100%; height: 320px; border-radius: 0.5rem; background-color: #e5e7eb;
+            display: flex; align-items: center; justify-content: center; color: #6b7280;
+        }
+        .map-expense-item, .home-recent-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.75rem; border-bottom: 1px solid #f3f4f6; cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .map-expense-item:hover, .home-recent-item:hover { background-color: #f9fafb; }
+        .map-expense-item.active {
+            background-color: #e0f2fe;
+            border-left: 4px solid #3b82f6;
+            padding-left: calc(0.75rem - 4px);
+        }
+        .map-expense-item:last-child, .home-recent-item:last-child { border-bottom: none; }
+
+        .ad-banner {
+            background-color: #fef3c7; color: #b45309; padding: 1rem; text-align: center;
+            font-size: 0.9rem; border-radius: 0.5rem; margin-top: 1.5rem; border: 1px dashed #fcd34d;
+        }
+
+        /* Affiliate specific styles */
+        .affiliate-item {
+            display: flex; flex-direction: column; align-items: flex-start;
+            margin-bottom: 0.75rem; padding: 1rem;
+            background-color: #f8fafc; border-radius: 0.375rem; border: 1px solid #e2e8f0;
+        }
+        .affiliate-item .header {
+            display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 0.5rem;
+        }
+        .affiliate-item .header i {
+            font-size: 1.8rem; color: #6366f1; margin-right: 0.75rem;
+        }
+        .affiliate-item .header .name {
+            font-weight: bold; font-size: 1.1rem; color: #333;
+        }
+        .affiliate-item .progress-bar-container {
+            width: 100%; background-color: #e2e8f0; border-radius: 0.5rem; height: 10px; margin-top: 0.5rem; margin-bottom: 0.25rem;
+        }
+        .affiliate-item .progress-bar {
+            height: 100%; border-radius: 0.5rem; background-color: #3b82f6; transition: width 0.3s ease-in-out;
+        }
+        .affiliate-item .details { font-size: 0.9rem; color: #4b5563; width: 100%;}
+        .affiliate-item .details .visits { font-weight: bold; color: #1d4ed8; }
+        .affiliate-item .benefit { font-weight: bold; color: #f59e0b; margin-top: 0.5rem; }
+        .affiliate-item .coupon-btn {
+            background-color: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem;
+            font-weight: 600; margin-top: 0.75rem; align-self: flex-end;
+        }
+        .affiliate-item .status {
+            font-size: 0.8rem; font-weight: bold; padding: 0.25rem 0.5rem; border-radius: 0.25rem;
+        }
+        .status-inprogress { background-color: #bfdbfe; color: #1d4ed8; }
+        .status-ready { background-color: #d1fae5; color: #059669; }
+        .status-claimed { background-color: #fce7f3; color: #db2777; } /* pink-100, pink-700 */
+
+    </style>
+</head>
+<body>
+    <div class="mobile-container">
+        <header class="app-header">
+            머니필터
+        </header>
+
+        <main class="app-content">
+            <!-- 홈/대시보드 탭 -->
+            <div id="home-tab" class="tab-content active">
+                <div class="card">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-lg font-semibold text-gray-700">요약</h3>
+                        <div class="toggle-switch">
+                            <span class="mr-2 text-sm text-gray-600">금액 숨기기</span>
+                            <input type="checkbox" id="hide-amounts" onchange="toggleAmountsVisibility(this.checked)"/>
+                            <label for="hide-amounts">Toggle</label>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-500">오늘 소비 금액</p>
+                            <p class="text-2xl font-bold text-red-500 amount-display">35,000원</p>
+                            <p class="text-2xl font-bold text-red-500 amount-hidden hidden">****원</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">이번 달 남은 예산</p>
+                            <p class="text-lg font-semibold text-blue-600 amount-display">465,000원</p>
+                            <p class="text-lg font-semibold text-blue-600 amount-hidden hidden">****원</p>
+                        </div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                        <div class="bg-blue-500 h-2.5 rounded-full" style="width: 93%"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-2 text-gray-700">최근 지출 내역</h3>
+                    <div id="home-recent-transactions">
+                        <!-- Dynamic content will be inserted here by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-3 text-gray-700">주요 카테고리별 지출 (이번 달)</h3>
+                    <div class="pie-chart-placeholder">
+                        <i class="fas fa-chart-pie fa-2x"></i>
+                    </div>
+                    <div class="mt-3 text-sm">
+                        <div class="flex justify-between py-1"><span><i class="fas fa-circle text-yellow-400 mr-2"></i>식비</span> <span class="amount-display">225,000원 (45%)</span><span class="amount-hidden hidden">****원</span></div>
+                        <div class="flex justify-between py-1"><span><i class="fas fa-circle text-green-400 mr-2"></i>교통</span> <span class="amount-display">100,000원 (20%)</span><span class="amount-hidden hidden">****원</span></div>
+                        <div class="flex justify-between py-1"><span><i class="fas fa-circle text-purple-500 mr-2"></i>쇼핑</span> <span class="amount-display">75,000원 (15%)</span><span class="amount-hidden hidden">****원</span></div>
+                        <div class="flex justify-between py-1"><span><i class="fas fa-circle text-red-400 mr-2"></i>문화생활</span> <span class="amount-display">50,000원 (10%)</span><span class="amount-hidden hidden">****원</span></div>
+                        <div class="flex justify-between py-1"><span><i class="fas fa-circle text-indigo-400 mr-2"></i>기타</span> <span class="amount-display">50,000원 (10%)</span><span class="amount-hidden hidden">****원</span></div>
+                    </div>
+                </div>
+
+                <div class="ad-banner">
+                    <p class="font-bold text-lg mb-1">🎁 스마트한 금융 습관, 머니필터와 함께!</p>
+                    <p>내게 꼭 맞는 금융 상품 추천! <span class="font-semibold">지금 바로 확인해보세요!</span></p>
+                </div>
+            </div>
+
+            <!-- 지도 탭 -->
+            <div id="map-tab" class="tab-content">
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-2 text-gray-700">소비 지도</h3>
+                    <p class="text-sm text-gray-600 mb-2">설정된 기간의 소비 내역을 지도 위에 표시합니다.</p>
+                    <div id="map-canvas">
+                        <i class="fas fa-spinner fa-spin fa-2x mr-2"></i> 지도 로딩 중...
+                    </div>
+                    <div class="info-box">
+                        <i class="fas fa-info-circle mr-1 text-blue-500"></i> 지도 위의 마커를 선택하거나 아래 목록을 클릭하면 해당 소비 내역을 확인할 수 있습니다.
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-2 text-gray-700">지출 내역 목록</h3>
+                    <div id="map-transaction-list">
+                        <!-- Dynamic content will be inserted here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 리포트 탭 -->
+            <div id="report-tab" class="tab-content">
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-2 text-gray-700">소비 리포트</h3>
+                    <select class="mb-3 p-2 border rounded w-full text-sm">
+                        <option>월별</option>
+                        <option>주별</option>
+                        <option>연도별</option>
+                    </select>
+                    <div class="h-56 bg-gray-100 flex items-center justify-center text-gray-400 rounded">
+                        <i class="fas fa-chart-bar fa-3x"></i> <span class="ml-2">다양한 차트 (원, 막대 등) 영역</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-2 text-gray-700">AI 코칭</h3>
+                     <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                        <p class="text-sm text-blue-700 flex items-start">
+                            <i class="fas fa-robot mr-2 mt-1 text-lg"></i>
+                            <span>
+                                <strong class="block">개인 소비 패턴 분석 결과:</strong>
+                                "김진아님, 지난주 대비 <span class="font-semibold text-red-600">배달음식 지출이 30% 늘었어요!</span> 건강을 위해 이번 주는 집밥 비중을 늘려보는 건 어떨까요? 예상 절약 금액: 약 25,000원"
+                            </span>
+                        </p>
+                        <button class="mt-3 text-xs bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600">더 많은 조언 보기</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 걷기 탭 (새로 추가) -->
+            <div id="walk-tab" class="tab-content">
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-3 text-gray-700">제휴업체 혜택</h3>
+                    <div id="affiliate-offers-list">
+                        <!-- Affiliate offers will be rendered here by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 설정 탭 -->
+            <div id="settings-tab" class="tab-content">
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-2 text-gray-700">계정 및 알림</h3>
+                    <a href="#" class="block py-3 border-b text-gray-700 hover:bg-gray-50 flex justify-between items-center"><span>프로필 수정</span><i class="fas fa-chevron-right text-gray-400"></i></a>
+                    <a href="#" class="block py-3 border-b text-gray-700 hover:bg-gray-50 flex justify-between items-center"><span>알림 설정</span><i class="fas fa-chevron-right text-gray-400"></i></a>
+                </div>
+                 <div class="card">
+                    <h3 class="text-lg font-semibold mb-2 text-gray-700">예산 및 목표</h3>
+                    <a href="#" class="block py-3 border-b text-gray-700 hover:bg-gray-50 flex justify-between items-center"><span>맞춤형 예산 제안 및 설정</span><i class="fas fa-chevron-right text-gray-400"></i></a>
+                    <a href="#" class="block py-3 border-b text-gray-700 hover:bg-gray-50 flex justify-between items-center"><span>저축 목표 설정 및 달성률 트래킹</span><i class="fas fa-chevron-right text-gray-400"></i></a>
+                </div>
+                <div class="card">
+                    <h3 class="text-lg font-semibold mb-2 text-gray-700">AI 및 기타</h3>
+                    <a href="#" class="block py-3 border-b text-gray-700 hover:bg-gray-50 flex justify-between items-center"><span>AI 코칭 설정 (ON/OFF, 빈도)</span><i class="fas fa-chevron-right text-gray-400"></i></a>
+                    <a href="#" class="block py-3 border-b text-gray-700 hover:bg-gray-50 flex justify-between items-center"><span>개인화된 절약 팁 및 챌린지</span><i class="fas fa-chevron-right text-gray-400"></i></a>
+                    <a href="#" class="block py-3 text-gray-700 hover:bg-gray-50 flex justify-between items-center"><span>데이터 백업 및 복원</span><i class="fas fa-chevron-right text-gray-400"></i></a>
+                </div>
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item active" data-tab="home-tab">
+                <i class="fas fa-home"></i>
+                <span>홈</span>
+            </div>
+            <div class="nav-item" data-tab="map-tab">
+                <i class="fas fa-map-marked-alt"></i>
+                <span>지도</span>
+            </div>
+            <div class="nav-item" data-tab="report-tab">
+                <i class="fas fa-chart-line"></i>
+                <span>리포트</span>
+            </div>
+            <div class="nav-item" data-tab="walk-tab">
+                <i class="fas fa-gift"></i> <!-- '걷기'에서 '혜택' 의미로 아이콘 변경 -->
+                <span>혜택</span>
+            </div>
+            <div class="nav-item" data-tab="settings-tab">
+                <i class="fas fa-cog"></i>
+                <span>설정</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Google Maps API 스크립트 - 제공해주신 API 키 적용 -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDEuyuK3iH5PWGLsSaFxro4_CPBPlWrSi4&callback=initMap&libraries=marker&language=ko"></script>
+
+    <script>
+        // Global variables for app state
+        const navItems = document.querySelectorAll('.nav-item');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const appHeader = document.querySelector('.app-header');
+        let map;
+        let infoWindow;
+        let mapMarkers = []; // Array to store Google Map markers and their data
+
+        // --- Centralized Transaction Data ---
+        const allTransactions = [
+            {
+                id: 'exp1', position: { lat: 37.5600, lng: 126.9750 },
+                title: "점심 식사 (한식당)", amount: "-12,000원", category: "식비", date: "2024-07-28",
+                rawAmount: 12000, location: "신세계 백화점", iconUrl: null
+            },
+            {
+                id: 'exp2', position: { lat: 37.5690, lng: 126.9820 },
+                title: "커피 (스타벅스)", amount: "-5,500원", category: "카페/간식", date: "2024-07-27",
+                rawAmount: 5500, location: "스타벅스 시청점", iconUrl: null
+            },
+            {
+                id: 'exp3', position: { lat: 37.5665, lng: 126.9700 },
+                title: "영화 관람 (CGV)", amount: "-14,500원", category: "문화생활", date: "2024-07-26",
+                rawAmount: 14500, location: "CGV 용산아이파크몰", iconUrl: null
+            },
+            {
+                id: 'exp4', position: { lat: 37.5580, lng: 126.9900 },
+                title: "옷 구매 (H&M)", amount: "-45,000원", category: "쇼핑", date: "2024-07-25",
+                rawAmount: 45000, location: "H&M 명동점", iconUrl: null
+            },
+            {
+                id: 'exp5', position: { lat: 37.5450, lng: 127.0500 },
+                title: "미용실 (준오헤어)", amount: "-70,000원", category: "미용", date: "2024-07-24",
+                rawAmount: 70000, location: "준오헤어 강남점", iconUrl: null
+            },
+            {
+                id: 'exp6', position: { lat: 37.5700, lng: 126.9750 },
+                title: "저녁 식사 (이탈리안)", amount: "-35,000원", category: "식비", date: "2024-07-23",
+                rawAmount: 35000, location: "테스트 키친", iconUrl: null
+            },
+            {
+                id: 'exp7', position: { lat: 37.5620, lng: 126.9850 },
+                title: "교통비 (지하철)", amount: "-1,450원", category: "교통", date: "2024-07-22",
+                rawAmount: 1450, location: "을지로입구역", iconUrl: null
+            }
+        ];
+
+        // Map category names to Google Maps marker icon URLs
+        const categoryIcons = {
+            "식비": "https://maps.google.com/mapfiles/ms/icons/restaurant.png",
+            "카페/간식": "https://maps.google.com/mapfiles/ms/icons/coffeehouse.png",
+            "문화생활": "https://maps.google.com/mapfiles/ms/icons/movies.png",
+            "쇼핑": "https://maps.google.com/mapfiles/ms/icons/shopping.png",
+            "미용": "https://maps.google.com/mapfiles/ms/icons/salon.png",
+            "교통": "https://maps.google.com/mapfiles/ms/icons/bus.png",
+            "기타": "https://maps.google.com/mapfiles/ms/icons/info.png"
+        };
+
+        // Pre-process transactions to assign icon URLs
+        allTransactions.forEach(t => {
+            t.iconUrl = categoryIcons[t.category] || categoryIcons["기타"];
+        });
+
+        // --- Affiliate Offers Data ---
+        let affiliateOffers = [
+            {
+                id: 'aff1', name: '스타벅스', icon: 'fas fa-mug-hot', currentVisits: 5, requiredVisits: 10,
+                benefit: '아메리카노 무료 쿠폰', claimed: false, status: '진행 중'
+            },
+            {
+                id: 'aff2', name: 'CGV', icon: 'fas fa-film', currentVisits: 2, requiredVisits: 3,
+                benefit: '콤보 50% 할인', claimed: false, status: '진행 중'
+            },
+            {
+                id: 'aff3', name: '배달의민족', icon: 'fas fa-utensils', currentVisits: 7, requiredVisits: 10,
+                benefit: '3,000원 할인 쿠폰', claimed: false, status: '진행 중'
+            },
+            {
+                id: 'aff4', name: '올리브영', icon: 'fas fa-shopping-bag', currentVisits: 1, requiredVisits: 5,
+                benefit: '5,000원 상품권', claimed: false, status: '진행 중'
+            }
+        ];
+
+
+        // --- Common App Functions ---
+
+        // Tab switching logic
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                navItems.forEach(nav => nav.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                item.classList.add('active');
+                const targetTabId = item.getAttribute('data-tab');
+                document.getElementById(targetTabId).classList.add('active');
+
+                const tabName = item.querySelector('span').textContent;
+                appHeader.textContent = tabName === '홈' ? '머니필터' : tabName;
+
+                // Specific actions when switching tabs
+                if (targetTabId === 'map-tab' && typeof google !== 'undefined' && typeof google.maps !== 'undefined' && !map) {
+                    initMap(); // Initialize map when map tab is first opened and API is loaded
+                } else if (targetTabId === 'walk-tab') {
+                    renderAffiliateOffers(); // Render affiliates when walk tab is opened
+                }
+            });
+        });
+
+        // Toggle visibility of amount numbers
+        function toggleAmountsVisibility(isHidden) {
+            const amountDisplays = document.querySelectorAll('.amount-display');
+            const amountHiddens = document.querySelectorAll('.amount-hidden');
+            if (isHidden) {
+                amountDisplays.forEach(el => el.classList.add('hidden'));
+                amountHiddens.forEach(el => el.classList.remove('hidden'));
+            } else {
+                amountDisplays.forEach(el => el.classList.remove('hidden'));
+                amountHiddens.forEach(el => el.classList.add('hidden'));
+            }
+        }
+
+        // Confirm category for a transaction on Home screen
+        function confirmCategory(transactionId, category) {
+            const transactionElement = document.getElementById(transactionId);
+            const confirmationDiv = transactionElement.querySelector('.category-confirmation');
+            confirmationDiv.innerHTML = `<span class="text-green-600"><i class="fas fa-check-circle mr-1"></i> 카테고리 '${category}'로 확정되었습니다.</span>`;
+            // In a real app, you would update the transaction data in your backend/storage here
+        }
+
+        // Prompt user to change category on Home screen
+        function promptCategoryChange(transactionId) {
+            const transactionElement = document.getElementById(transactionId);
+            const currentCategorySpan = transactionElement.querySelector('.category-confirmation span');
+            const originalCategory = currentCategorySpan.textContent.match(/카테고리: (.*?)./)?.[1] || "알 수 없음"; // Extract current category
+
+            const confirmationDiv = transactionElement.querySelector('.category-confirmation');
+            confirmationDiv.innerHTML = `<span class="text-red-600"><i class="fas fa-exclamation-circle mr-1"></i> 카테고리 변경:</span>
+                                         <select class="p-1 border rounded text-xs ml-2" id="category-select-${transactionId}">
+                                             <option value="">선택</option>
+                                             ${Object.keys(categoryIcons).map(cat => `<option value="${cat}" ${cat === originalCategory ? 'selected' : ''}>${cat}</option>`).join('')}
+                                         </select>
+                                         <button class="btn bg-blue-500 hover:bg-blue-600 text-white ml-2" onclick="applyCategoryChange('${transactionId}')">적용</button>`;
+        }
+
+        // Apply category change on Home screen
+        function applyCategoryChange(transactionId) {
+            const selectElement = document.getElementById(`category-select-${transactionId}`);
+            const newCategory = selectElement.value;
+            if (newCategory) {
+                // Update transaction data (for demo purposes, not persistent)
+                const transaction = allTransactions.find(t => `home-transaction-${t.id}` === transactionId);
+                if (transaction) {
+                    transaction.category = newCategory;
+                    transaction.iconUrl = categoryIcons[newCategory] || categoryIcons["기타"]; // Update icon URL as well
+                }
+                confirmCategory(transactionId, newCategory);
+            } else {
+                alert('카테고리를 선택해주세요.');
+            }
+        }
+
+        // Render Home screen's recent transactions dynamically
+        function renderHomeRecentTransactions() {
+            const container = document.getElementById('home-recent-transactions');
+            container.innerHTML = ''; // Clear existing content
+
+            if (allTransactions.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">최근 지출 내역이 없습니다.</p>';
+                return;
+            }
+
+            // Display latest 3 transactions for brevity
+            allTransactions.slice(0, 3).forEach(transaction => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'home-recent-item';
+                itemDiv.id = `home-transaction-${transaction.id}`; // Unique ID for category confirmation
+                itemDiv.innerHTML = `
+                    <div class="flex justify-between items-center w-full">
+                        <div>
+                            <p class="font-medium">${transaction.title}</p>
+                            <p class="text-xs text-gray-500">${transaction.date}</p>
+                        </div>
+                        <p class="font-semibold text-red-500 amount-display">${transaction.amount}</p>
+                        <p class="font-semibold text-red-500 amount-hidden hidden">****원</p>
+                    </div>
+                    <div class="category-confirmation mt-2 text-sm text-gray-600 w-full">
+                        <span>카테고리: <span class="font-medium text-blue-600">${transaction.category}</span>. ${transaction.location}이 맞습니까?</span>
+                        <button class="btn bg-green-500 hover:bg-green-600 text-white" onclick="confirmCategory('home-transaction-${transaction.id}', '${transaction.category}')">예</button>
+                        <button class="btn bg-gray-300 hover:bg-gray-400 text-gray-700" onclick="promptCategoryChange('home-transaction-${transaction.id}')">아니오</button>
+                    </div>
+                `;
+                container.appendChild(itemDiv);
+            });
+             // Apply current visibility state to newly rendered items
+            toggleAmountsVisibility(document.getElementById('hide-amounts').checked);
+        }
+        // Call on initial load
+        document.addEventListener('DOMContentLoaded', renderHomeRecentTransactions);
+
+
+        // --- Google Maps Specific Functions ---
+
+        // Google Maps initialization function
+        function initMap() {
+            const mapCanvas = document.getElementById('map-canvas');
+            if (!mapCanvas) {
+                console.error("지도 캔버스 요소를 찾을 수 없습니다.");
+                return;
+            }
+            mapCanvas.innerHTML = ''; // Remove loading message if any
+
+            const initialPosition = { lat: 37.5665, lng: 126.9780 }; // Seoul City Hall
+
+            map = new google.maps.Map(mapCanvas, {
+                center: initialPosition,
+                zoom: 14,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: false
+            });
+
+            infoWindow = new google.maps.InfoWindow();
+            mapMarkers = []; // Clear existing markers if re-initializing
+
+            // Create markers
+            allTransactions.forEach(expense => {
+                const marker = new google.maps.Marker({
+                    position: expense.position,
+                    map: map,
+                    title: expense.title,
+                    icon: {
+                        url: expense.iconUrl,
+                        scaledSize: new google.maps.Size(32, 32)
+                    }
+                });
+
+                mapMarkers.push({ expense: expense, marker: marker });
+
+                marker.addListener('click', () => {
+                    openInfoWindow(expense);
+                    highlightMapListItem(expense.id);
+                });
+            });
+
+            renderMapTransactionList();
+        }
+
+        // Open InfoWindow on map for a given expense
+        function openInfoWindow(expense) {
+            const marker = mapMarkers.find(item => item.expense.id === expense.id)?.marker;
+            if (!marker) return;
+
+            const content = `
+                <div style="font-family: 'Noto Sans KR', sans-serif; padding: 5px;">
+                    <h4 style="margin:0 0 5px 0; font-weight:bold;">${expense.title}</h4>
+                    <p style="margin:0 0 3px 0;">금액: <span style="color:red;">${expense.amount}</span></p>
+                    <p style="margin:0;">카테고리: ${expense.category}</p>
+                    <p style="margin:0; font-size:0.8em; color:#666;">날짜: ${expense.date}</p>
+                </div>`;
+            infoWindow.setContent(content);
+            infoWindow.open(map, marker);
+            map.setCenter(expense.position);
+            map.setZoom(16);
+        }
+
+        // Render transaction list below the map
+        function renderMapTransactionList() {
+            const listContainer = document.getElementById('map-transaction-list');
+            listContainer.innerHTML = ''; // Clear previous list
+
+            if (allTransactions.length === 0) {
+                listContainer.innerHTML = '<p class="text-gray-500 text-center py-4">지출 내역이 없습니다.</p>';
+                return;
+            }
+
+            allTransactions.forEach(expense => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'map-expense-item';
+                itemDiv.dataset.expenseId = expense.id;
+                itemDiv.innerHTML = `
+                    <div>
+                        <p class="font-medium">${expense.title}</p>
+                        <p class="text-xs text-gray-500">${expense.date} · ${expense.category}</p>
+                    </div>
+                    <p class="font-semibold text-red-500 amount-display">${expense.amount}</p>
+                    <p class="font-semibold text-red-500 amount-hidden hidden">****원</p>
+                `;
+                itemDiv.addEventListener('click', () => {
+                    openInfoWindow(expense);
+                    highlightMapListItem(expense.id);
+                });
+                listContainer.appendChild(itemDiv);
+            });
+            // Apply current visibility state to newly rendered items
+            toggleAmountsVisibility(document.getElementById('hide-amounts').checked);
+        }
+
+        // Highlight selected item in the map transaction list
+        function highlightMapListItem(expenseId) {
+            document.querySelectorAll('.map-expense-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const selectedItem = document.querySelector(`.map-expense-item[data-expense-id="${expenseId}"]`);
+            if (selectedItem) {
+                selectedItem.classList.add('active');
+                selectedItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        // Google Maps API callback (must be global for async loading)
+        window.initMap = initMap;
+
+
+        // --- Affiliate Functions ---
+
+        // Render affiliate offers dynamically
+        function renderAffiliateOffers() {
+            const container = document.getElementById('affiliate-offers-list');
+            container.innerHTML = ''; // Clear existing content
+
+            if (affiliateOffers.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">현재 제휴 혜택이 없습니다.</p>';
+                return;
+            }
+
+            affiliateOffers.forEach(offer => {
+                const progress = Math.min(100, (offer.currentVisits / offer.requiredVisits) * 100);
+                let statusClass = 'status-inprogress';
+                let statusText = '진행 중';
+                let couponButton = '';
+
+                if (offer.claimed) {
+                    statusClass = 'status-claimed';
+                    statusText = '혜택 수령 완료';
+                } else if (offer.currentVisits >= offer.requiredVisits) {
+                    statusClass = 'status-ready';
+                    statusText = '쿠폰 발행 가능!';
+                    couponButton = `<button class="coupon-btn" onclick="claimCoupon('${offer.id}')">쿠폰 받기</button>`;
+                }
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'affiliate-item';
+                itemDiv.innerHTML = `
+                    <div class="header">
+                        <div class="flex items-center">
+                            <i class="${offer.icon} text-indigo-500 mr-2"></i>
+                            <span class="name">${offer.name}</span>
+                        </div>
+                        <span class="status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="details">
+                        <p>방문 횟수: <span class="visits">${offer.currentVisits}회</span> / ${offer.requiredVisits}회</p>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: ${progress}%"></div>
+                        </div>
+                        <p class="benefit">다음 혜택: ${offer.benefit}</p>
+                    </div>
+                    ${couponButton}
+                `;
+                container.appendChild(itemDiv);
+            });
+        }
+
+        // Simulate claiming a coupon
+        function claimCoupon(offerId) {
+            const offer = affiliateOffers.find(o => o.id === offerId);
+            if (offer && offer.currentVisits >= offer.requiredVisits && !offer.claimed) {
+                alert(`${offer.name} 쿠폰 '${offer.benefit}'이(가) 발행되었습니다!`);
+                offer.claimed = true; // Mark as claimed
+                offer.status = '혜택 수령 완료'; // Update status
+                renderAffiliateOffers(); // Re-render the list to update status
+            } else if (offer && offer.claimed) {
+                alert('이미 수령된 혜택입니다.');
+            } else {
+                alert('아직 혜택을 받을 조건이 되지 않습니다.');
+            }
+        }
+
+        // Initial render for affiliate offers (if '혜택' is default active tab or when switched)
+        // For this demo, let's make sure it renders if '혜택' is active on load, or when switched.
+        // As '홈' is active by default, it will render upon switching to '혜택' tab.
+
+    </script>
+</body>
+</html>
